@@ -15,12 +15,22 @@
 .feedback{margin-top:16px;border-radius:14px;padding:14px 16px;line-height:1.6}.feedback.good{background:#e9f9f0;border:1px solid #a5e3bd}.feedback.bad{background:#fff1f1;border:1px solid #ffc5c5}.feedback strong{display:block;margin-bottom:4px}
 .actions{display:flex;gap:10px;justify-content:space-between;margin-top:20px;flex-wrap:wrap}.btn{border:0;border-radius:12px;padding:12px 18px;font:inherit;font-weight:750;cursor:pointer}.primary{background:var(--blue);color:#fff}.primary:hover{background:#064bd1}.secondary{background:#edf3ff;color:#163a78;border:1px solid #c9dcff}.btn:disabled{opacity:.45;cursor:not-allowed}.hidden{display:none!important}.scorebig{font-size:3rem;font-weight:850;color:var(--blue);text-align:center}.summarylist{max-height:330px;overflow:auto;margin-top:16px}.review{padding:12px 0;border-bottom:1px solid #e5edfb}.review:last-child{border-bottom:0}.review .en{font-weight:800}.review .answer{color:var(--good)}.review .miss{color:var(--bad)}
 footer{text-align:center;color:var(--muted);font-size:.82rem;margin-top:22px}
-/* Phone-first portrait layout */
+
+.set-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.set-card{display:flex;flex-direction:column;align-items:flex-start;gap:7px;text-align:left;padding:17px;border:2px solid #c9dcff;border-radius:16px;background:linear-gradient(145deg,#f7fbff,#eaf3ff);color:var(--ink);font:inherit;cursor:pointer;min-height:125px;transition:.15s}
+.set-card:hover,.set-card:focus-visible{border-color:var(--blue);background:#e3edff;outline:none;transform:translateY(-1px)}
+.set-number{font-size:.85rem;color:var(--blue);font-weight:800}
+.set-card strong{font-size:1.03rem;line-height:1.35}
+.set-count{font-size:.86rem;color:var(--muted)}
+\n/* Phone-first portrait layout */
 @media(max-width:600px){
   html{font-size:16px}
   body{min-height:100dvh;background:linear-gradient(180deg,#e9f2ff,#f7fbff 55%,#dceaff)}
   .wrap{width:100%;max-width:480px;margin:0 auto;padding:10px 10px calc(22px + env(safe-area-inset-bottom))}
   .hero{padding:19px 16px;border-radius:18px;box-shadow:0 8px 22px #0b1f4d20}
+  .set-grid{grid-template-columns:1fr;gap:9px;margin-top:14px}
+  .set-card{min-height:0;padding:14px;gap:5px}
+  .set-card strong{font-size:1rem}
   .kicker{font-size:.72rem;letter-spacing:.08em}
   .hero h1{font-size:clamp(1.55rem,7vw,2rem);line-height:1.2;margin:7px 0 10px}
   .hero p{font-size:.92rem;line-height:1.5}
@@ -61,11 +71,16 @@ footer{text-align:center;color:var(--muted);font-size:.82rem;margin-top:22px}
   </header>
 
   <section id="start" class="card">
-    <h2>พร้อมเริ่มเล่นหรือยัง?</h2>
-    <p class="muted">แต่ละรอบจะสุ่มคำศัพท์ 20 คำจากคลังคำศัพท์ที่เตรียมไว้ และสลับตำแหน่งตัวเลือกทุกข้อ</p>
-    <div class="row small"><span>📚 คำศัพท์ในคลัง</span><strong id="bankCount">—</strong></div>
+    <h2>เลือกชุดคำศัพท์ที่ต้องการเล่น</h2>
+    <p class="muted">เลือกชุดก่อนเริ่มเกม แต่ละรอบจะสุ่ม 20 ข้อจากชุดที่เลือก และสลับตำแหน่งตัวเลือกทุกข้อ</p>
+    <div class="set-grid" id="setGrid">
+      <button class="set-card" type="button" data-set="0"><span class="set-number">ชุดที่ 1</span><strong>คำศัพท์ 1–150</strong><span class="set-count" id="setCount0">150 คำ</span></button>
+      <button class="set-card" type="button" data-set="1"><span class="set-number">ชุดที่ 2</span><strong>คำศัพท์ 151–300</strong><span class="set-count" id="setCount1">150 คำ</span></button>
+      <button class="set-card" type="button" data-set="2"><span class="set-number">ชุดที่ 3</span><strong>คำศัพท์ 301–450</strong><span class="set-count" id="setCount2">150 คำ</span></button>
+      <button class="set-card" type="button" data-set="3"><span class="set-number">ชุดที่ 4</span><strong>คำศัพท์ 451–คำสุดท้าย</strong><span class="set-count" id="setCount3">— คำ</span></button>
+    </div>
+    <div class="row small" style="margin-top:14px"><span>📚 คำศัพท์ทั้งหมด</span><strong id="bankCount">—</strong></div>
     <div class="row small" style="margin-top:8px"><span>🎯 จำนวนข้อในแต่ละรอบ</span><strong>20 ข้อ</strong></div>
-    <div class="actions"><button class="btn primary" id="startBtn">เริ่มเกมใหม่ →</button></div>
   </section>
 
   <section id="quiz" class="card hidden">
@@ -83,13 +98,17 @@ footer{text-align:center;color:var(--muted);font-size:.82rem;margin-top:22px}
 
   <section id="result" class="card hidden">
     <h2 style="text-align:center">จบรอบแล้ว! 🎉</h2>
+    <p id="resultSetLabel" class="muted" style="text-align:center"></p>
     <div class="scorebig" id="finalScore">0 / 20</div>
     <p id="resultMessage" style="text-align:center"></p>
     <div class="row"><span>ตอบถูก</span><strong id="correctCount">0</strong></div>
     <div class="row"><span>ตอบผิด</span><strong id="wrongCount">0</strong></div>
     <h3>ทบทวนคำตอบทั้ง 20 ข้อ</h3>
     <div class="summarylist" id="reviewList"></div>
-    <div class="actions"><button class="btn primary" id="againBtn">สุ่มชุดใหม่ 20 ข้อ ↻</button></div>
+    <div class="actions">
+      <button class="btn primary" id="againBtn">สุ่ม 20 ข้อใหม่ในชุดนี้ ↻</button>
+      <button class="btn secondary" id="chooseSetBtn">กลับไปเลือกชุด</button>
+    </div>
   </section>
   <footer>เกมทำงานในไฟล์ HTML นี้ได้โดยไม่ต้องเชื่อมต่ออินเทอร์เน็ต</footer>
 </div>
@@ -98,8 +117,19 @@ const BANK = [{"en": "a great deal", "th": "อย่างมาก; จำน�
 const ROUND_SIZE = 20;
 const $ = id => document.getElementById(id);
 let questions = [], index = 0, score = 0, selected = null, answered = false, history = [];
+let activeSetIndex = null;
+const SETS = [
+  {label:"ชุดที่ 1", range:"คำศัพท์ 1–150", words:BANK.slice(0,150)},
+  {label:"ชุดที่ 2", range:"คำศัพท์ 151–300", words:BANK.slice(150,300)},
+  {label:"ชุดที่ 3", range:"คำศัพท์ 301–450", words:BANK.slice(300,450)},
+  {label:"ชุดที่ 4", range:"คำศัพท์ 451–คำสุดท้าย", words:BANK.slice(450)}
+];
 
 $("bankCount").textContent = BANK.length + " คำ";
+SETS.forEach((set,i)=>{$("setCount"+i).textContent=set.words.length+" คำ";});
+document.querySelectorAll(".set-card").forEach(button=>{
+  button.addEventListener("click",()=>{activeSetIndex=Number(button.dataset.set);makeRound();});
+});
 
 function shuffle(arr){
   const a = arr.slice();
@@ -107,24 +137,28 @@ function shuffle(arr){
   return a;
 }
 function makeRound(){
-  questions = shuffle(BANK).slice(0, Math.min(ROUND_SIZE, BANK.length));
+  const selectedSet = SETS[activeSetIndex ?? 0];
+  const pool = selectedSet.words;
+  questions = shuffle(pool).slice(0, Math.min(ROUND_SIZE, pool.length));
   index=0; score=0; selected=null; answered=false; history=[];
   $("start").classList.add("hidden"); $("result").classList.add("hidden"); $("quiz").classList.remove("hidden");
+  $("questionCount").textContent = selectedSet.label + " · ข้อ 1 / " + questions.length;
   renderQuestion();
 }
 function renderQuestion(){
   const q=questions[index]; selected=null; answered=false;
-  $("questionCount").textContent=`ข้อ ${index+1} / ${questions.length}`;
+  $("questionCount").textContent=`${SETS[activeSetIndex ?? 0].label} · ข้อ ${index+1} / ${questions.length}`;
   $("scoreNow").textContent=`คะแนน ${score}`;
   $("progressBar").style.width=`${(index/questions.length)*100}%`;
   $("word").textContent=q.en;
   $("feedback").className="feedback hidden"; $("feedback").innerHTML="";
   $("submitBtn").classList.remove("hidden"); $("submitBtn").disabled=true;
   $("nextBtn").classList.add("hidden");
-  const distractors=shuffle(BANK.filter(x=>x.en!==q.en && x.th!==q.th)).slice(0,3);
-  // If bank ever has fewer than 4 distinct meanings, fill with any distinct entries.
+  const pool = SETS[activeSetIndex ?? 0].words;
+  const distractors=shuffle(pool.filter(x=>x.en!==q.en && x.th!==q.th)).slice(0,3);
+  // If the selected set has fewer than 4 distinct meanings, fill with distinct entries from that set.
   while(distractors.length<3){
-    const extra=shuffle(BANK.filter(x=>x.en!==q.en && !distractors.some(d=>d.en===x.en)))[0];
+    const extra=shuffle(pool.filter(x=>x.en!==q.en && !distractors.some(d=>d.en===x.en)))[0];
     if(!extra) break; distractors.push(extra);
   }
   const options=shuffle([{...q,correct:true},...distractors.map(x=>({...x,correct:false}))]);
@@ -147,7 +181,7 @@ function submitAnswer(){
     if(b.dataset.correct==="true")b.classList.add("correct");
     else if(b.classList.contains("selected"))b.classList.add("wrong");
   });
-  const wrongOptions=buttons.filter(b=>b.dataset.correct!=="true").map(b=>b.dataset.en+" = "+(BANK.find(x=>x.en===b.dataset.en)?.th||""));
+  const wrongOptions=buttons.filter(b=>b.dataset.correct!=="true").map(b=>b.dataset.en+" = "+(SETS[activeSetIndex ?? 0].words.find(x=>x.en===b.dataset.en)?.th||""));
   const fb=$("feedback");fb.classList.remove("hidden");fb.classList.add(correct?"good":"bad");
   fb.innerHTML=`<strong>${correct?"✓ ถูกต้อง!":"✗ ยังไม่ถูกครับ"}</strong>
     <div>คำตอบที่ถูก: <b>${escapeHtml(q.en)}</b> = <b>${escapeHtml(q.th)}</b></div>
@@ -162,13 +196,17 @@ function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":
 function nextQuestion(){index++;if(index>=questions.length){showResult();}else renderQuestion();}
 function showResult(){
   $("quiz").classList.add("hidden");$("result").classList.remove("hidden");$("progressBar").style.width="100%";
+  $("resultSetLabel").textContent = SETS[activeSetIndex ?? 0].label + " · " + SETS[activeSetIndex ?? 0].range;
   $("finalScore").textContent=`${score} / ${questions.length}`;
   $("correctCount").textContent=score;$("wrongCount").textContent=questions.length-score;
   const pct=Math.round(score/questions.length*100);
   $("resultMessage").textContent=pct>=80?`ยอดเยี่ยม! ${pct}% — รักษาความเก่งนี้ไว้ครับ`:pct>=50?`ทำได้ดี ${pct}% — ทบทวนคำที่ผิดแล้วลองอีกครั้ง`: `${pct}% — ฝึกอีกสักรอบ แล้วจะเก่งขึ้นแน่นอน`;
   $("reviewList").innerHTML=history.map((h,i)=>`<div class="review"><div><b>${i+1}. ${escapeHtml(h.en)}</b> — ${escapeHtml(h.th)}</div><div class="${h.correct?"answer":"miss"} small">${h.correct?"✓ ตอบถูก":`✗ เลือก ${escapeHtml(h.selected)} (${escapeHtml(h.selectedTh)})`}</div></div>`).join("");
 }
-$("startBtn").addEventListener("click",makeRound);$("againBtn").addEventListener("click",makeRound);
+$("againBtn").addEventListener("click",makeRound);
+$("chooseSetBtn").addEventListener("click",()=>{
+  $("result").classList.add("hidden");$("quiz").classList.add("hidden");$("start").classList.remove("hidden");
+});
 $("submitBtn").addEventListener("click",submitAnswer);$("nextBtn").addEventListener("click",nextQuestion);
 </script>
 </body>
